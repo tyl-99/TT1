@@ -607,10 +607,11 @@ class Trader:
             signal = strategy.analyze_trade_signal(self.trendbar, self.current_pair)
             
             logger.info(f"\n=== Strategy Decision for {self.current_pair} ===")
-            logger.info(f"Decision: {signal.get('decision')}")
+            logger.info(f"Decision: {signal.get('decision') or signal.get('action')}")
             
-            if signal.get("decision") == "NO TRADE":
-                logger.info(f"No trade signal for {self.current_pair}")
+            # Check for both 'decision' and 'action' keys to handle different response formats
+            if signal.get("decision") == "NO TRADE" or signal.get("action") == "HOLD" or signal.get("action") == "NONE":
+                logger.info(f"No trade signal for {self.current_pair}: {signal.get('reason', 'No reason provided')}")
                 self.move_to_next_pair()
             else:
                 # CENTRALIZED R:R FILTER - Check R:R ratio before executing trade
@@ -716,7 +717,7 @@ class Trader:
         potential_win = reward_pips * pip_value * volume_lots
         
         return {
-            "decision": signal['decision'],
+            "decision": signal.get('decision', signal.get('action', 'UNKNOWN')),
             "entry_price": entry_price,
             "stop_loss": stop_loss,
             "take_profit": take_profit,

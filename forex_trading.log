@@ -1,0 +1,94 @@
+2025-06-28 23:07:31,302 - __main__ - INFO - Processing EUR/USD
+2025-06-28 23:07:36,520 - __main__ - INFO - Processing GBP/USD
+2025-06-28 23:07:42,436 - __main__ - INFO - Processing EUR/GBP
+2025-06-28 23:08:35,735 - __main__ - INFO - Processing EUR/USD
+2025-06-30 07:44:41,842 - __main__ - INFO - Processing EUR/USD
+2025-06-30 07:46:20,032 - __main__ - INFO - Processing EUR/USD
+2025-06-30 08:02:17,895 - __main__ - INFO - Processing EUR/USD
+2025-06-30 08:04:29,512 - __main__ - INFO - Processing EUR/USD
+2025-06-30 08:07:20,383 - __main__ - INFO - Processing EUR/USD
+2025-06-30 08:14:36,337 - __main__ - INFO - Processing EUR/USD
+2025-06-30 08:32:28,638 - __main__ - INFO - Processing EUR/USD
+2025-06-30 08:32:29,901 - __main__ - INFO - 
+=== Strategy Decision for EUR/USD ===
+2025-06-30 08:32:29,915 - __main__ - INFO - Decision: NO TRADE
+2025-06-30 08:32:29,915 - __main__ - INFO - No trade signal for EUR/USD
+2025-06-30 08:32:31,925 - __main__ - INFO - Processing GBP/USD
+2025-06-30 08:32:32,891 - __main__ - INFO - 
+=== Strategy Decision for GBP/USD ===
+2025-06-30 08:32:32,892 - __main__ - INFO - Decision: SELL
+2025-06-30 08:32:32,972 - __main__ - INFO - Trade signal: {'decision': 'SELL', 'entry_price': np.float64(1.37199), 'stop_loss': np.float64(1.3727), 'take_profit': np.float64(1.36986), 'volume': np.float64(0.7042253521126877), 'reason': 'Supply/Demand zone: supply zone at 1.37146-1.37250', 'risk_reward_ratio': '3.00', 'potential_loss_usd': '$50.00', 'potential_win_usd': '$150.00', 'winrate': '55%+', 'volume_calculation': '0.70 lots for $50.0 risk', 'loss_calculation': '7.1 pips ◊ $10.0/pip ◊ 0.70 lots', 'win_calculation': '21.3 pips ◊ $10.0/pip ◊ 0.70 lots'}
+2025-06-30 08:32:37,148 - __main__ - INFO - Trade notification sent for GBP/USD
+2025-06-30 08:32:39,151 - __main__ - INFO - Processing USD/JPY
+2025-06-30 08:32:39,861 - __main__ - INFO - 
+=== Strategy Decision for USD/JPY ===
+2025-06-30 08:32:39,861 - __main__ - INFO - Decision: NO TRADE
+2025-06-30 08:32:39,863 - __main__ - INFO - No trade signal for USD/JPY
+2025-06-30 08:32:41,875 - __main__ - INFO - Processing EUR/JPY
+2025-06-30 08:32:42,817 - __main__ - INFO - 
+=== Strategy Decision for EUR/JPY ===
+2025-06-30 08:32:42,817 - __main__ - INFO - Decision: SELL
+2025-06-30 08:32:44,840 - __main__ - INFO - Processing EUR/GBP
+2025-06-30 08:32:45,836 - __main__ - INFO - 
+=== Strategy Decision for EUR/GBP ===
+2025-06-30 08:32:45,837 - __main__ - INFO - Decision: NO TRADE
+2025-06-30 08:32:45,837 - __main__ - INFO - No trade signal for EUR/GBP
+2025-06-30 08:32:47,848 - __main__ - INFO - Processing GBP/JPY
+2025-06-30 08:32:48,825 - __main__ - INFO - 
+=== Strategy Decision for GBP/JPY ===
+2025-06-30 08:32:48,826 - __main__ - INFO - Decision: BUY
+2025-06-30 08:32:48,844 - __main__ - INFO - Trade signal: {'decision': 'BUY', 'entry_price': np.float64(198.296), 'stop_loss': np.float64(198.09199999999998), 'take_profit': np.float64(198.908), 'volume': np.float64(0.3501400560223957), 'reason': 'Supply/Demand zone: demand zone at 198.11200-198.29800', 'risk_reward_ratio': '3.00', 'potential_loss_usd': '$50.00', 'potential_win_usd': '$150.00', 'winrate': '55%+', 'volume_calculation': '0.35 lots for $50.0 risk', 'loss_calculation': '20.4 pips ◊ $7.0/pip ◊ 0.35 lots', 'win_calculation': '61.2 pips ◊ $7.0/pip ◊ 0.35 lots'}
+2025-06-30 08:32:51,549 - __main__ - INFO - Trade notification sent for GBP/JPY
+2025-06-30 09:01:16,751 - __main__ - INFO - Processing EUR/USD
+2025-06-30 09:01:18,093 - __main__ - INFO - 
+=== Strategy Decision for EUR/USD ===
+2025-06-30 09:01:18,093 - __main__ - INFO - Decision: BUY
+2025-06-30 09:02:07,819 - __main__ - INFO - Trade signal: {'decision': 'BUY', 'entry_price': np.float64(1.17179), 'stop_loss': np.float64(1.17096), 'take_profit': np.float64(1.1742800000000004), 'volume': np.float64(0.6024096385541382), 'reason': 'Supply/Demand zone: demand zone at 1.17116-1.17198', 'risk_reward_ratio': '3.00', 'potential_loss_usd': '$50.00', 'potential_win_usd': '$150.00', 'winrate': '55%+', 'volume_calculation': '0.60 lots for $50.0 risk', 'loss_calculation': '8.3 pips ◊ $10.0/pip ◊ 0.60 lots', 'win_calculation': '24.9 pips ◊ $10.0/pip ◊ 0.60 lots'}
+2025-06-30 09:02:12,767 - __main__ - INFO - Processing GBP/USD
+2025-06-30 09:02:14,783 - __main__ - INFO - Processing USD/JPY
+2025-06-30 09:02:16,050 - __main__ - INFO - 
+=== Strategy Decision for USD/JPY ===
+2025-06-30 09:02:16,050 - __main__ - INFO - Decision: BUY
+2025-06-30 09:02:44,789 - __main__ - ERROR - Error analyzing USD/JPY: 'zone_low'
+2025-06-30 09:02:46,794 - __main__ - INFO - Processing EUR/JPY
+2025-06-30 09:02:48,040 - __main__ - INFO - 
+=== Strategy Decision for EUR/JPY ===
+2025-06-30 09:02:48,041 - __main__ - INFO - Decision: SELL
+2025-06-30 09:02:50,056 - __main__ - INFO - Processing EUR/GBP
+2025-06-30 09:02:51,064 - __main__ - INFO - 
+=== Strategy Decision for EUR/GBP ===
+2025-06-30 09:02:51,064 - __main__ - INFO - Decision: NO TRADE
+2025-06-30 09:02:51,064 - __main__ - INFO - No trade signal for EUR/GBP
+2025-06-30 09:02:53,074 - __main__ - INFO - Processing GBP/JPY
+2025-06-30 09:33:03,537 - __main__ - INFO - Processing EUR/USD
+2025-06-30 09:33:04,906 - __main__ - INFO - 
+=== Strategy Decision for EUR/USD ===
+2025-06-30 09:33:04,906 - __main__ - INFO - Decision: NO TRADE
+2025-06-30 09:33:04,906 - __main__ - INFO - No trade signal for EUR/USD
+2025-06-30 09:33:06,919 - __main__ - INFO - Processing GBP/USD
+2025-06-30 09:33:08,925 - __main__ - INFO - Processing USD/JPY
+2025-06-30 09:33:09,918 - __main__ - INFO - 
+=== Strategy Decision for USD/JPY ===
+2025-06-30 09:33:09,918 - __main__ - INFO - Decision: NO TRADE
+2025-06-30 09:33:09,919 - __main__ - INFO - No trade signal for USD/JPY
+2025-06-30 09:33:11,924 - __main__ - INFO - Processing EUR/JPY
+2025-06-30 09:33:12,883 - __main__ - INFO - 
+=== Strategy Decision for EUR/JPY ===
+2025-06-30 09:33:12,884 - __main__ - INFO - Decision: NO TRADE
+2025-06-30 09:33:12,884 - __main__ - INFO - No trade signal for EUR/JPY
+2025-06-30 09:33:14,893 - __main__ - INFO - Processing EUR/GBP
+2025-06-30 09:33:15,892 - __main__ - INFO - 
+=== Strategy Decision for EUR/GBP ===
+2025-06-30 09:33:15,893 - __main__ - INFO - Decision: NO TRADE
+2025-06-30 09:33:15,894 - __main__ - INFO - No trade signal for EUR/GBP
+2025-06-30 09:33:17,902 - __main__ - INFO - Processing GBP/JPY
+2025-06-30 09:33:18,891 - __main__ - INFO - 
+=== Strategy Decision for GBP/JPY ===
+2025-06-30 09:33:18,891 - __main__ - INFO - Decision: BUY
+2025-06-30 09:33:18,892 - __main__ - INFO - ‚ùå Trade REJECTED for GBP/JPY: Stop loss 2.2 pips < 5 pips minimum
+2025-06-30 10:17:36,141 - __main__ - INFO - Processing EUR/USD
+2025-06-30 10:18:25,253 - __main__ - INFO - Processing EUR/USD
+2025-06-30 10:20:42,442 - __main__ - INFO - Processing EUR/USD
+2025-06-30 10:21:55,759 - __main__ - INFO - Processing EUR/USD
+2025-06-30 10:22:27,731 - __main__ - INFO - Processing EUR/USD
+2025-06-30 10:23:22,987 - __main__ - INFO - Processing EUR/USD

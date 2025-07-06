@@ -103,7 +103,7 @@ class EURUSDSTRATEGY:
         highs, lows = self._find_swing_points(recent_data, window=3)  # Smaller window (was 5)
         
         if len(highs) < 1 or len(lows) < 1:
-            return None
+            direction = "NO TRADE"
             
         recent_high_idx = max(highs)
         recent_low_idx = max(lows)
@@ -119,7 +119,7 @@ class EURUSDSTRATEGY:
             
         swing_range_pips = abs(swing_high - swing_low) / self.pip_size
         if swing_range_pips < self.min_swing_pips:
-            return None
+            direction = "NO TRADE"
             
         fib_levels = self._calculate_fibonacci_levels(swing_high, swing_low, direction)
         tolerance = 10.0 * self.pip_size  # Larger tolerance (was 5.0)
@@ -135,7 +135,7 @@ class EURUSDSTRATEGY:
                     nearest_distance = distance
                     
         if not nearest_level:
-            return None
+            direction = "NO TRADE"
             
         entry_price = fib_levels[nearest_level]
         
@@ -151,7 +151,7 @@ class EURUSDSTRATEGY:
         rr_ratio = tp_distance / sl_distance
         
         if rr_ratio < self.min_rr_ratio or rr_ratio > self.max_rr_ratio:
-            return None
+            direction = "NO TRADE"
             
         return {
             'direction': direction,

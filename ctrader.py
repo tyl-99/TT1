@@ -246,19 +246,28 @@ class Trader:
         symbol_id = forex_symbols.get(self.pending_order["symbol"])
         
         if symbol_id is not None:
-            print(f"Placing market order for {self.pending_order['symbol']}")
+            print(f"Placing limit order for {self.pending_order['symbol']} at {self.pending_order['entry_price']}")
 
             order = ProtoOANewOrderReq()
             order.ctidTraderAccountId = self.account_id
             order.symbolId = symbol_id
             order.volume = int(self.pending_order["volume"])*100
 
-            order.orderType = ProtoOAOrderType.MARKET
+            # Change to LIMIT order instead of MARKET
+            order.orderType = ProtoOAOrderType.LIMIT
+            
+            # Set the exact entry price as limit price
+            if 'JPY' in self.current_pair:
+                order.limitPrice = round(float(self.pending_order["entry_price"]), 3)
+            else:
+                order.limitPrice = round(float(self.pending_order["entry_price"]), 5)
+            
             if(self.pending_order["decision"] == "BUY"):
                 order.tradeSide = ProtoOATradeSide.BUY
             elif(self.pending_order["decision"] =="SELL"):
                 order.tradeSide = ProtoOATradeSide.SELL
-            print(f"Placing {order.tradeSide} order for symbol {order.symbolId} with volume {order.volume}")
+            
+            print(f"Placing {order.tradeSide} LIMIT order for symbol {order.symbolId} with volume {order.volume} at price {order.limitPrice}")
 
             deferred = self.client.send(order)
             # Add timeout to order request
@@ -268,7 +277,7 @@ class Trader:
             print(f"{self.pending_order['symbol']} symbol not found in the dictionary!")
 
     def onOrderSent(self, response):
-        print("Market order sent successfully!")
+        print("Limit order sent successfully!")
         message = Protobuf.extract(response)
         print(message)
         

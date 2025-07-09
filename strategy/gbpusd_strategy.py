@@ -12,7 +12,7 @@ class GBPUSDSTRATEGY:
         self.fib_levels = [0.236, 0.382, 0.5]  # 3 levels for optimal balance
         
         # OPTIMIZED: Best parameters from tuning (Very Loose - 3 Levels)
-        self.min_atr_pips = 1.0  # Optimal volatility requirement
+        self.min_atr_pips = 2.0  # Optimal volatility requirement
         self.max_atr_pips = 100.0  # High volatility tolerance
         self.min_swing_pips = 1.0  # Optimal swing requirement
         

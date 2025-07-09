@@ -103,7 +103,7 @@ class EURUSDSTRATEGY:
         highs, lows = self._find_swing_points(recent_data, window=3)  # Smaller window (was 5)
         
         if len(highs) < 1 or len(lows) < 1:
-            direction = "NO TRADE"
+            return None
             
         recent_high_idx = max(highs)
         recent_low_idx = max(lows)
@@ -135,7 +135,7 @@ class EURUSDSTRATEGY:
                     nearest_distance = distance
                     
         if not nearest_level:
-            direction = "NO TRADE"
+            return None
             
         entry_price = fib_levels[nearest_level]
         

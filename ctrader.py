@@ -121,6 +121,9 @@ class Trader:
         self.current_position_id = None
         # Track current position volume for accurate closing
         self.current_position_volume = None
+        
+        # Store closed deals list
+        self.closed_deals_list = []
 
         # Initialize strategy instances for each pair
         self.strategies = {
@@ -939,59 +942,61 @@ class Trader:
         try:
             parsed = Protobuf.extract(response)
             
-            print(f"\n📈 DEALS FROM CURRENT WEEK:")
-            print("=" * 80)
+            # print(f"\n📈 DEALS FROM CURRENT WEEK (CLOSED POSITIONS ONLY):")
+            # print("=" * 80)
             
             if hasattr(parsed, 'deal') and parsed.deal:
-                total_volume = 0
-                total_profit = 0
-                buy_trades = 0
-                sell_trades = 0
+                closed_deals = []
+                total_gross_profit = 0
+                closed_trades = 0
                 
                 for deal in parsed.deal:
-                    # Convert timestamp from milliseconds to datetime
-                    deal_time = datetime.datetime.fromtimestamp(deal.executionTimestamp / 1000)
-                    
-                    # Get symbol name from symbol ID
-                    symbol_name = "Unknown"
-                    for symbol_id, name in forex_symbols.items():
-                        if name == deal.tradeData.symbolId:
-                            symbol_name = symbol_id
-                            break
-                    
-                    # Determine trade side
-                    side = "BUY" if deal.tradeData.tradeSide == 1 else "SELL"
-                    
-                    # Calculate profit/loss
-                    profit = deal.executionPrice * deal.tradeData.volume / 100000  # Convert to proper units
-                    
-                    # Format the deal information
-                    print(f"🕐 {deal_time.strftime('%Y-%m-%d %H:%M:%S')} | "
-                          f"💱 {symbol_name} | "
-                          f"📊 {side} | "
-                          f"💰 Volume: {deal.tradeData.volume/100000:.2f} lots | "
-                          f"💵 Price: ${deal.executionPrice:.5f} | "
-                          f"📈 P/L: ${profit:.2f}")
-                    
-                    # Update totals
-                    total_volume += deal.tradeData.volume
-                    total_profit += profit
-                    if side == "BUY":
-                        buy_trades += 1
-                    else:
-                        sell_trades += 1
+                    # Only process deals that have closePositionDetail (closed positions)
+                    if hasattr(deal, 'closePositionDetail') and deal.closePositionDetail:
+                        # Get gross profit from closePositionDetail
+                        gross_profit = deal.closePositionDetail.grossProfit
+                        
+                        # Only include deals with actual profit/loss (not $0.00)
+                        if gross_profit != 0:
+                            # Convert timestamp from milliseconds to datetime
+                            deal_time = datetime.datetime.fromtimestamp(deal.executionTimestamp / 1000)
+                            
+                            # Get symbol name from symbol ID
+                            symbol_name = "Unknown"
+                            for symbol_id, name in forex_symbols.items():
+                                if name == deal.symbolId:
+                                    symbol_name = symbol_id
+                                    break
+                            
+                            # Store deal info in list
+                            closed_deals.append({
+                                'timestamp': deal_time,
+                                'symbol_id': deal.symbolId,
+                                'gross_profit': gross_profit
+                            })
+                            
+                            # # Format the deal information
+                            # print(f"🕐 {deal_time.strftime('%Y-%m-%d %H:%M:%S')} | "
+                            #       f"💱 {symbol_name} (ID: {deal.symbolId}) | "
+                            #       f"📈 Gross Profit: ${gross_profit:.2f}")
+                            
+                            # Update totals
+                            total_gross_profit += gross_profit
+                            closed_trades += 1
                 
-                print("=" * 80)
-                print(f"📊 SUMMARY:")
-                print(f"Total Deals: {len(parsed.deal)}")
-                print(f"Buy Trades: {buy_trades}")
-                print(f"Sell Trades: {sell_trades}")
-                print(f"Total Volume: {total_volume/100000:.2f} lots")
-                print(f"Total P/L: ${total_profit:.2f}")
-                print("=" * 80)
+                
+                # Store the closed deals list for potential future use
+                self.closed_deals_list = closed_deals
                 
             else:
                 print("📭 No deals found for the current week.")
+                self.closed_deals_list = []
+            
+            # Check for recent loss trade after deals are loaded
+            if self.check_recent_loss_trade(self.current_pair):
+                print(f"⏭️ Skipping {self.current_pair} due to recent loss trade")
+                self.move_to_next_pair()
+                return
             
             print(f"\n🚀 Starting trendbar data collection for {self.current_pair}...")
             
@@ -1002,6 +1007,39 @@ class Trader:
             logger.error(f"Error processing deals response: {str(e)}")
             # Continue with trendbar collection even if deal processing fails
             self.sendTrendbarReq(weeks=6, period="M30", symbolId=self.current_pair)
+
+    def check_recent_loss_trade(self, pair_name):
+        """Check if there's a loss trade in the last 12 hours for the given pair"""
+        try:
+            if not hasattr(self, 'closed_deals_list') or not self.closed_deals_list:
+                return False  # No deals to check
+            
+            # Get current time
+            now = datetime.datetime.now()
+            # Calculate 12 hours ago
+            twelve_hours_ago = now - datetime.timedelta(hours=12)
+            
+            # Get symbol ID for the pair
+            symbol_id = forex_symbols.get(pair_name)
+            if symbol_id is None:
+                return False  # Pair not found
+            
+            # Check for loss trades in the last 12 hours
+            for deal in self.closed_deals_list:
+                # Check if deal is for this pair and within last 12 hours
+                if (deal['symbol_id'] == symbol_id and 
+                    deal['timestamp'] >= twelve_hours_ago and 
+                    deal['gross_profit'] < 0):
+                    
+                    print(f"🚫 {pair_name} has a loss trade in the last 12 hours!")
+                    print(f"   Loss: ${deal['gross_profit']:.2f} at {deal['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
+                    return True
+            
+            return False
+            
+        except Exception as e:
+            logger.error(f"Error checking recent loss trade for {pair_name}: {str(e)}")
+            return False
 
     def run_trading_cycle(self, pair):
     
@@ -1021,9 +1059,9 @@ class Trader:
             else:
                 self.current_pair = pair_name
             
-                self.sendTrendbarReq(weeks=6, period="M30", symbolId=pair_name)
+                #self.sendTrendbarReq(weeks=6, period="M30", symbolId=pair_name)
                 # # Get deals from current week before starting trendbar collection
-                # self.get_deals_from_current_week()
+                self.get_deals_from_current_week()
                 # #self.getActivePosition()
                 # #self.get_symbol_list()
 

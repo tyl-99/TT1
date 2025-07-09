@@ -267,7 +267,16 @@ class Trader:
             elif(self.pending_order["decision"] =="SELL"):
                 order.tradeSide = ProtoOATradeSide.SELL
             
+            # Set stop loss and take profit directly in the order request
+            if 'JPY' in self.current_pair:
+                order.stopLoss = round(float(self.pending_order["stop_loss"]), 3)
+                order.takeProfit = round(float(self.pending_order["take_profit"]), 3)
+            else:
+                order.stopLoss = round(float(self.pending_order["stop_loss"]), 5)
+                order.takeProfit = round(float(self.pending_order["take_profit"]), 5)
+            
             print(f"Placing {order.tradeSide} LIMIT order for symbol {order.symbolId} with volume {order.volume} at price {order.limitPrice}")
+            print(f"Stop Loss: {order.stopLoss}, Take Profit: {order.takeProfit}")
 
             deferred = self.client.send(order)
             # Add timeout to order request
@@ -285,6 +294,12 @@ class Trader:
         if hasattr(message, 'errorCode') and message.errorCode:
             description = getattr(message, 'description', 'No description available')
             print(f"❌ Order failed: {message.errorCode} - {description}")
+            
+            # Check for TRADING_BAD_STOPS error during order creation
+            if message.errorCode == "TRADING_BAD_STOPS":
+                print(f"🚨 TRADING_BAD_STOPS detected for {self.current_pair} during order creation!")
+                logger.warning(f"TRADING_BAD_STOPS error for {self.current_pair} during order creation")
+            
             self.move_to_next_pair()
             return
         
@@ -296,10 +311,13 @@ class Trader:
             self.current_position_id = position_id
             self.current_position_volume = position_volume
             
-            print(f"✅ Position created - ID: {position_id}, Volume: {position_volume}")
+            print(f"✅ Position created with SL/TP - ID: {position_id}, Volume: {position_volume}")
+            print(f"✅ Stop Loss: {self.pending_order['stop_loss']}, Take Profit: {self.pending_order['take_profit']}")
             
-            # Don't send notification here - wait until SL/TP is successfully set
-            self.amend_sl_tp(position_id, self.pending_order["stop_loss"], self.pending_order["take_profit"])
+            # Send notification immediately since SL/TP are already set
+            self.send_pushover_notification()
+            self.reset_retry_state()
+            self.move_to_next_pair()
         else:
             print("❌ No position created in response")
             self.move_to_next_pair()
@@ -885,6 +903,106 @@ class Trader:
     def is_symbol_active(self, symbol_id):
         return any(pos["symbolId"] == symbol_id for pos in self.active_positions)
 
+    def get_deals_from_current_week(self):
+        """Get all deals from the current week before starting trendbar collection"""
+        try:
+            # Calculate current week's start and end timestamps
+            now = datetime.datetime.now()
+            start_of_week = now - datetime.timedelta(days=now.weekday())  # Current week
+            start_of_week = start_of_week.replace(hour=0, minute=0, second=0, microsecond=0)
+            end_of_week = start_of_week + datetime.timedelta(days=7)
+            
+            # Convert to Unix timestamps
+            from_timestamp = int(start_of_week.timestamp() * 1000)  # Convert to milliseconds
+            to_timestamp = int(end_of_week.timestamp() * 1000)
+            
+            print(f"📊 Fetching deals from current week: {start_of_week.strftime('%Y-%m-%d')} to {end_of_week.strftime('%Y-%m-%d')}")
+            
+            # Create ProtoOADealListReq
+            deal_req = ProtoOADealListReq()
+            deal_req.ctidTraderAccountId = self.account_id
+            deal_req.fromTimestamp = from_timestamp
+            deal_req.toTimestamp = to_timestamp
+            deal_req.maxRows = 1000  # Get up to 1000 deals
+            
+            # Send the request
+            deferred = self.client.send(deal_req)
+            deferred.addCallbacks(self.onDealsReceived, self.onError)
+            
+        except Exception as e:
+            logger.error(f"Error creating deal request: {str(e)}")
+            # Continue with trendbar collection even if deal request fails
+            self.sendTrendbarReq(weeks=6, period="M30", symbolId=self.current_pair)
+
+    def onDealsReceived(self, response):
+        """Handle the response from ProtoOADealListRes"""
+        try:
+            parsed = Protobuf.extract(response)
+            
+            print(f"\n📈 DEALS FROM CURRENT WEEK:")
+            print("=" * 80)
+            
+            if hasattr(parsed, 'deal') and parsed.deal:
+                total_volume = 0
+                total_profit = 0
+                buy_trades = 0
+                sell_trades = 0
+                
+                for deal in parsed.deal:
+                    # Convert timestamp from milliseconds to datetime
+                    deal_time = datetime.datetime.fromtimestamp(deal.executionTimestamp / 1000)
+                    
+                    # Get symbol name from symbol ID
+                    symbol_name = "Unknown"
+                    for symbol_id, name in forex_symbols.items():
+                        if name == deal.tradeData.symbolId:
+                            symbol_name = symbol_id
+                            break
+                    
+                    # Determine trade side
+                    side = "BUY" if deal.tradeData.tradeSide == 1 else "SELL"
+                    
+                    # Calculate profit/loss
+                    profit = deal.executionPrice * deal.tradeData.volume / 100000  # Convert to proper units
+                    
+                    # Format the deal information
+                    print(f"🕐 {deal_time.strftime('%Y-%m-%d %H:%M:%S')} | "
+                          f"💱 {symbol_name} | "
+                          f"📊 {side} | "
+                          f"💰 Volume: {deal.tradeData.volume/100000:.2f} lots | "
+                          f"💵 Price: ${deal.executionPrice:.5f} | "
+                          f"📈 P/L: ${profit:.2f}")
+                    
+                    # Update totals
+                    total_volume += deal.tradeData.volume
+                    total_profit += profit
+                    if side == "BUY":
+                        buy_trades += 1
+                    else:
+                        sell_trades += 1
+                
+                print("=" * 80)
+                print(f"📊 SUMMARY:")
+                print(f"Total Deals: {len(parsed.deal)}")
+                print(f"Buy Trades: {buy_trades}")
+                print(f"Sell Trades: {sell_trades}")
+                print(f"Total Volume: {total_volume/100000:.2f} lots")
+                print(f"Total P/L: ${total_profit:.2f}")
+                print("=" * 80)
+                
+            else:
+                print("📭 No deals found for the current week.")
+            
+            print(f"\n🚀 Starting trendbar data collection for {self.current_pair}...")
+            
+            # Continue with trendbar collection
+            self.sendTrendbarReq(weeks=6, period="M30", symbolId=self.current_pair)
+            
+        except Exception as e:
+            logger.error(f"Error processing deals response: {str(e)}")
+            # Continue with trendbar collection even if deal processing fails
+            self.sendTrendbarReq(weeks=6, period="M30", symbolId=self.current_pair)
+
     def run_trading_cycle(self, pair):
     
         try:
@@ -904,8 +1022,10 @@ class Trader:
                 self.current_pair = pair_name
             
                 self.sendTrendbarReq(weeks=6, period="M30", symbolId=pair_name)
-                #self.getActivePosition()
-                #self.get_symbol_list()
+                # # Get deals from current week before starting trendbar collection
+                # self.get_deals_from_current_week()
+                # #self.getActivePosition()
+                # #self.get_symbol_list()
 
         except Exception as e:
             logger.error(f"Error processing {pair_name}: {str(e)}")

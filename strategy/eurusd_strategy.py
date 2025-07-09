@@ -12,7 +12,7 @@ class EURUSDSTRATEGY:
         
         # LOOSENED: Entry conditions for more trades
         self.min_atr_pips = 2.0  # Much lower volatility requirement (was 8.0)
-        self.max_atr_pips = 50.0  # Higher volatility tolerance (was 25.0)
+        self.max_atr_pips = 100.0  # Higher volatility tolerance (was 25.0)
         self.min_swing_pips = 5.0  # Much smaller swing requirement (was 15.0)
         
         # LOOSENED: Time filters

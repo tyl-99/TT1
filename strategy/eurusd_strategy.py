@@ -6,14 +6,14 @@ from datetime import time
 class EURUSDSTRATEGY:
     def __init__(self, target_pair="EUR/USD"):
         self.target_pair = target_pair
-        self.pip_size = 0.00001
-        self.atr_period = 14
+        self.pip_size = 0.0001
+        self.atr_period = 12  # OPTIMIZED: Best from 100-combination tuner (was 8)
         self.fib_levels = [0.382, 0.5]  # OPTIMIZED: Best performing combination from tuning
         
-        # LOOSENED: Entry conditions for more trades
+        # OPTIMIZED: Entry conditions from 100-combination tuner results
         self.min_atr_pips = 2.0  # Much lower volatility requirement (was 8.0)
         self.max_atr_pips = 100.0  # Higher volatility tolerance (was 25.0)
-        self.min_swing_pips = 5.0  # Much smaller swing requirement (was 15.0)
+        self.min_swing_pips = 8.0  # OPTIMIZED: Best from 100-combination tuner (was 3.0)
         
         # LOOSENED: Time filters
         self.trading_hours = {'start': time(0, 0), 'end': time(23, 59)}  # Trade all hours
@@ -98,7 +98,7 @@ class EURUSDSTRATEGY:
         return df
 
     def _identify_fibonacci_setup(self, df, current_price):
-        lookback = 30  # Shorter lookback (was 50)
+        lookback = 40  # OPTIMIZED: Best from 100-combination tuner (was 30)
         recent_data = df.tail(lookback)
         highs, lows = self._find_swing_points(recent_data, window=3)  # Smaller window (was 5)
         

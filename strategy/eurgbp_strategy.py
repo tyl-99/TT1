@@ -6,22 +6,22 @@ from datetime import time
 class EURGBPSTRATEGY:
     def __init__(self, target_pair="EUR/GBP"):
         self.target_pair = target_pair
-        self.pip_size = 0.00001
-        self.atr_period = 14
+        self.pip_size = 0.0001  # Set to 0.0001 as per user note
+        self.atr_period = 8  # OPTIMIZED: Best from EUR/GBP 100-combination tuner
         # OPTIMIZED: Best performing combination from aggressive tuning
         self.fib_levels = [0.236, 0.382, 0.5]  # 3 levels for optimal balance
         
-        # OPTIMIZED: Best parameters from tuning (Very Loose - 3 Levels)
-        self.min_atr_pips = 1.0  # Optimal volatility requirement
+        # OPTIMIZED: Best parameters from EUR/GBP 100-combination tuner
+        self.min_atr_pips = 2.0  # Optimal volatility requirement
         self.max_atr_pips = 100.0  # High volatility tolerance
-        self.min_swing_pips = 1.0  # Optimal swing requirement
+        self.min_swing_pips = 8.0  # Optimal swing requirement
         
         # LOOSENED: Time filters
         self.trading_hours = {'start': time(0, 0), 'end': time(23, 59)}  # Trade all hours
         self.avoid_weekends = False  # Allow weekend trading
         
         # OPTIMIZED: Risk management for best performance
-        self.min_rr_ratio = 2.5  # Lower minimum RR for more trades
+        self.min_rr_ratio = 3.0  # Lower minimum RR for more trades
         self.max_rr_ratio = 15.0  # Higher maximum RR tolerance
         
         # Risk per trade for lot size calculation
@@ -100,9 +100,9 @@ class EURGBPSTRATEGY:
         return df
 
     def _identify_fibonacci_setup(self, df, current_price):
-        lookback = 20  # Optimal lookback for frequent signals
+        lookback = 20  # OPTIMIZED: Best from EUR/GBP 100-combination tuner
         recent_data = df.tail(lookback)
-        highs, lows = self._find_swing_points(recent_data, window=2)  # Optimal window
+        highs, lows = self._find_swing_points(recent_data, window=3)  # Match tuner implementation
         
         if len(highs) < 1 or len(lows) < 1:
             return None

@@ -7,14 +7,14 @@ class GBPUSDSTRATEGY:
     def __init__(self, target_pair="GBP/USD"):
         self.target_pair = target_pair
         self.pip_size = 0.00001
-        self.atr_period = 14
+        self.atr_period = 12  # OPTIMIZED: Best from 100-combination tuner
         # OPTIMIZED: Best performing combination from aggressive tuning
         self.fib_levels = [0.236, 0.382, 0.5]  # 3 levels for optimal balance
         
-        # OPTIMIZED: Best parameters from tuning (Very Loose - 3 Levels)
-        self.min_atr_pips = 2.0  # Optimal volatility requirement
+        # OPTIMIZED: Best parameters from 100-combination tuner
+        self.min_atr_pips = 8.0  # Optimal volatility requirement
         self.max_atr_pips = 100.0  # High volatility tolerance
-        self.min_swing_pips = 1.0  # Optimal swing requirement
+        self.min_swing_pips = 8.0  # Optimal swing requirement
         
         # LOOSENED: Time filters
         self.trading_hours = {'start': time(0, 0), 'end': time(23, 59)}  # Trade all hours
@@ -99,7 +99,7 @@ class GBPUSDSTRATEGY:
         return df
 
     def _identify_fibonacci_setup(self, df, current_price):
-        lookback = 20  # Optimal lookback for frequent signals
+        lookback = 40  # OPTIMIZED: Best from 100-combination tuner
         recent_data = df.tail(lookback)
         highs, lows = self._find_swing_points(recent_data, window=2)  # Optimal window
         

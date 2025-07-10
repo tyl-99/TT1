@@ -69,7 +69,7 @@ class USDJPYSTRATEGY:
         highs, lows = self._find_swing_points(recent_data, window=2)
         
         if len(highs) < 1 or len(lows) < 1:
-            direction = "NO TRADE"
+            return None
             
         recent_high_idx = max(highs)
         recent_low_idx = max(lows)
@@ -85,7 +85,7 @@ class USDJPYSTRATEGY:
             
         swing_range_pips = abs(swing_high - swing_low) / self.pip_size
         if swing_range_pips < self.swing_pips:
-            direction = "NO TRADE"
+            return None
             
         fib_levels = self._calculate_fibonacci_levels(swing_high, swing_low, direction)
         tolerance = self.tolerance
@@ -100,7 +100,7 @@ class USDJPYSTRATEGY:
                 nearest_distance = distance
                     
         if not nearest_level:
-            direction = "NO TRADE"
+            return None
             
         entry_price = fib_levels[nearest_level]
         
@@ -116,7 +116,7 @@ class USDJPYSTRATEGY:
         rr_ratio = tp_distance / sl_distance
         
         if rr_ratio < self.min_rr_ratio or rr_ratio > self.max_rr_ratio:
-            direction = "NO TRADE"
+            return None
             
         return {
             'direction': direction,

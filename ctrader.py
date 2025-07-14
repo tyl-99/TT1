@@ -265,6 +265,11 @@ class Trader:
             else:
                 order.limitPrice = round(float(self.pending_order["entry_price"]), 5)
             
+            # Set expiration timestamp (15 minutes from now)
+            current_timestamp = int(time.time() * 1000)  # Current time in milliseconds
+            expiration_timestamp = current_timestamp + (15 * 60 * 1000)  # Add 15 minutes
+            order.expirationTimestamp = expiration_timestamp
+            
             if(self.pending_order["decision"] == "BUY"):
                 order.tradeSide = ProtoOATradeSide.BUY
             elif(self.pending_order["decision"] =="SELL"):

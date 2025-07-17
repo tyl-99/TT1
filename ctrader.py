@@ -322,8 +322,7 @@ class Trader:
             print(f"✅ Position created with SL/TP - ID: {position_id}, Volume: {position_volume}")
             print(f"✅ Stop Loss: {self.pending_order['stop_loss']}, Take Profit: {self.pending_order['take_profit']}")
             
-            # Send notification immediately since SL/TP are already set
-            self.send_pushover_notification()
+            # Proceed directly to next pair without notification
             self.reset_retry_state()
             self.move_to_next_pair()
         else:
@@ -441,8 +440,7 @@ class Trader:
                 self.reset_retry_state()
         else:
             print("✅ Amend SL/TP sent successfully!")
-            # Send notification only after successful SL/TP setting
-            self.send_pushover_notification()
+            # Proceed directly to next pair without notification
             self.reset_retry_state()
         
         self.move_to_next_pair()
